@@ -1,0 +1,624 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>5조 씩씩한 붕붕이 | Team Page</title>
+
+<style>
+:root {
+  --navy:#102744;
+  --blue:#2563eb;
+  --bg:#f3f6fc;
+  --line:#e2e8f0;
+  --muted:#64748b;
+}
+
+* {
+  box-sizing:border-box;
+}
+
+html {
+  scroll-behavior:smooth;
+}
+
+body {
+  margin:0;
+  background:var(--bg);
+  color:#172b49;
+  font-family:Arial,"Malgun Gothic",sans-serif;
+}
+
+.container {
+  max-width:1100px;
+  margin:auto;
+  padding:0 20px;
+}
+
+header {
+  background:linear-gradient(125deg,#0b2343,#2563a5);
+  color:white;
+  padding:65px 20px;
+}
+
+.tag {
+  display:inline-block;
+  background:#ffffff25;
+  border-radius:30px;
+  padding:8px 15px;
+  font-size:12px;
+}
+
+header h1 {
+  font-size:43px;
+  margin:18px 0 12px;
+}
+
+header p {
+  color:#dbeafe;
+  line-height:1.8;
+}
+
+nav {
+  background:white;
+  position:sticky;
+  top:0;
+  z-index:10;
+  box-shadow:0 3px 12px #00000012;
+  padding:17px 0;
+}
+
+nav .container {
+  display:flex;
+  gap:23px;
+  flex-wrap:wrap;
+}
+
+nav a {
+  text-decoration:none;
+  color:#274a78;
+  font-weight:bold;
+  font-size:13px;
+}
+
+section {
+  padding:35px 0;
+  scroll-margin-top:75px;
+}
+
+h2 {
+  font-size:25px;
+  margin:0 0 20px;
+}
+
+h3 {
+  font-size:17px;
+}
+
+.subtitle {
+  color:var(--muted);
+  font-size:13px;
+  margin-bottom:18px;
+  line-height:1.8;
+}
+
+.grid4 {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:15px;
+}
+
+.grid3 {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:15px;
+}
+
+.card {
+  background:white;
+  border:1px solid var(--line);
+  border-radius:15px;
+  padding:25px;
+  box-shadow:0 4px 18px #142d4b09;
+}
+
+.card p {
+  font-size:14px;
+  line-height:1.8;
+}
+
+.avatar {
+  width:56px;
+  height:56px;
+  border-radius:15px;
+  display:grid;
+  place-items:center;
+  background:#dbeafe;
+  color:#1d4ed8;
+  font-size:23px;
+  font-weight:bold;
+}
+
+.role {
+  color:var(--blue);
+  font-size:13px;
+  font-weight:bold;
+}
+
+.number {
+  font-size:30px;
+  font-weight:800;
+  color:var(--blue);
+}
+
+.problem {
+  border-top:4px solid var(--blue);
+}
+
+.highlight {
+  background:#eaf2ff;
+  border-left:5px solid var(--blue);
+  padding:25px;
+  border-radius:12px;
+  line-height:1.9;
+}
+
+.solution {
+  background:linear-gradient(125deg,#102744,#1e568f);
+  color:white;
+  padding:35px;
+  border-radius:17px;
+}
+
+.solution p {
+  color:#dbeafe;
+  line-height:1.9;
+}
+
+.step {
+  background:#ffffff18;
+  padding:20px;
+  border-radius:12px;
+}
+
+.btn {
+  display:inline-block;
+  padding:14px 22px;
+  background:var(--blue);
+  color:white;
+  border:0;
+  border-radius:9px;
+  font-weight:bold;
+  text-decoration:none;
+  cursor:pointer;
+  font-size:14px;
+  transition:0.2s;
+}
+
+.btn:hover {
+  background:#1d4ed8;
+  transform:translateY(-2px);
+}
+
+.btn:disabled {
+  opacity:.55;
+}
+
+.btn.alt {
+  background:#e8f0fc;
+  color:#1d4d84;
+}
+
+.btn.alt:hover {
+  background:#dbeafe;
+}
+
+.note {
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.8;
+}
+
+.linkcard {
+  text-align:center;
+  padding:42px 25px;
+}
+
+.linkicon {
+  font-size:45px;
+  margin-bottom:15px;
+}
+
+.appcard {
+  text-align:center;
+  padding:45px 25px;
+}
+
+.appicon {
+  font-size:45px;
+  margin-bottom:15px;
+}
+
+footer {
+  background:#102541;
+  color:#cbd5e1;
+  text-align:center;
+  padding:28px;
+  margin-top:35px;
+}
+
+@media(max-width:800px) {
+  .grid4,.grid3 {
+    grid-template-columns:repeat(2,1fr);
+  }
+}
+
+@media(max-width:550px) {
+  .grid4,.grid3 {
+    grid-template-columns:1fr;
+  }
+
+  header h1 {
+    font-size:30px;
+  }
+
+  nav .container {
+    gap:13px;
+  }
+
+  .solution {
+    padding:23px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- 메인 헤더 -->
+<header>
+  <div class="container">
+    <span class="tag">
+      HINT 2기 · 디지털 스킬 프로젝트
+    </span>
+
+    <h1>5조 씩씩한 붕붕이</h1>
+
+    <p>
+      생산공정 개선 업무의 효율화 및 실행 기준 명확화
+    </p>
+
+    <p>
+      TEAM PROJECT · AS-IS → TO-BE
+    </p>
+  </div>
+</header>
+
+<!-- 상단 메뉴 -->
+<nav>
+  <div class="container">
+    <a href="#team">팀 소개</a>
+    <a href="#problem">문제 정의</a>
+    <a href="#cause">핵심 원인</a>
+    <a href="#solution">해결안</a>
+    <a href="#ppt">4일차 기획서</a>
+    <a href="#app">완성 앱</a>
+  </div>
+</nav>
+
+<main class="container">
+
+<!-- 01 팀 소개 -->
+<section id="team">
+  <h2>01. 팀 소개</h2>
+
+  <p class="subtitle">
+    5조 씩씩한 붕붕이 · 팀원별 담당 역할
+  </p>
+
+  <div class="grid4">
+
+    <div class="card">
+      <div class="avatar">정</div>
+      <h3>정윤성</h3>
+      <div class="role">PM</div>
+      <p>
+        프로젝트 일정 관리 및 팀 활동 총괄
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="avatar">조</div>
+      <h3>조량하</h3>
+      <div class="role">리서처</div>
+      <p>
+        공정개선 관련 자료 조사 및 근거 정리
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="avatar">이</div>
+      <h3>이승현</h3>
+      <div class="role">분석가</div>
+      <p>
+        AS-IS 문제 분석 및 TO-BE 개선 방향 검토
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="avatar">조</div>
+      <h3>조수황</h3>
+      <div class="role">기록 · 발표</div>
+      <p>
+        프로젝트 내용 기록 및 발표자료 정리
+      </p>
+    </div>
+
+  </div>
+</section>
+
+<!-- 02 문제 정의 -->
+<section id="problem">
+  <h2>02. 문제 정의</h2>
+
+  <p class="subtitle">
+    생산공정 개선계획 수립 과정에서 발생할 수 있는 문제
+  </p>
+
+  <div class="grid3">
+
+    <div class="card problem">
+      <div class="number">01</div>
+      <h3>실행계획 불명확</h3>
+      <p>
+        담당자, 완료기한, 완료기준이 명확하지 않으면
+        정보 재확인과 작업 지연이 발생할 수 있습니다.
+      </p>
+    </div>
+
+    <div class="card problem">
+      <div class="number">02</div>
+      <h3>효과 판정 기준 부족</h3>
+      <p>
+        개선 결과를 판단할 기준이 부족하면
+        효과 검증과 후속 개선에 어려움이 생길 수 있습니다.
+      </p>
+    </div>
+
+    <div class="card problem">
+      <div class="number">03</div>
+      <h3>우선순위 기준 부족</h3>
+      <p>
+        개선과제의 중요도와 실행 순서가 불명확하면
+        중요한 과제의 실행이 늦어질 수 있습니다.
+      </p>
+    </div>
+
+  </div>
+
+  <p class="note">
+    ※ 실제 현장 손실을 측정한 결과가 아닌
+    교육용 문제 가설입니다.
+  </p>
+</section>
+
+<!-- 03 핵심 원인 -->
+<section id="cause">
+  <h2>03. 최종 선택한 진짜 원인</h2>
+
+  <div class="highlight">
+
+    <h3>
+      개선계획의 필수 정보 및 실행 기준이 명확하지 않음
+    </h3>
+
+    <p>
+      개선과제 수립 시 담당자, 완료기한, 완료기준 등의
+      필수 정보가 누락되거나 명확하지 않으면
+      관련 부서와 담당자 간 재확인 및 보완 작업이
+      반복될 가능성이 있습니다.
+    </p>
+
+    <p>
+      따라서 개선계획 작성 항목을 표준화하고,
+      누락 정보를 저장 전에 확인하는 체계가
+      필요하다고 판단했습니다.
+    </p>
+
+    <strong>
+      팀에서 최종 선택한 핵심 원인 가설
+    </strong>
+
+    <p class="note">
+      실제 제조현장 검증 전 단계입니다.
+    </p>
+
+  </div>
+</section>
+
+<!-- 04 최종 해결안 -->
+<section id="solution">
+  <h2>04. 최종 해결안 1개</h2>
+
+  <div class="solution">
+
+    <span class="tag">ONE SOLUTION</span>
+
+    <h2 style="margin-top:18px">
+      공정개선 스마트 계획표
+    </h2>
+
+    <p>
+      개선과제 등록부터 누락 확인, 실행 상태 관리,
+      KPI 분석까지 하나의 웹앱에서 수행하는
+      공정개선 관리 시스템입니다.
+    </p>
+
+    <div class="grid3">
+
+      <div class="step">
+        <h3>① 표준 입력</h3>
+        <p>
+          대상공정, 문제, 개선내용, 담당자,
+          완료기한, 완료기준을 표준 양식으로 입력
+        </p>
+      </div>
+
+      <div class="step">
+        <h3>② 누락 자동 확인</h3>
+        <p>
+          필수 항목 누락 안내,
+          경고 발생 기록 및 보완 저장 여부 관리
+        </p>
+      </div>
+
+      <div class="step">
+        <h3>③ 진행 및 성과 관리</h3>
+        <p>
+          칸반 보드, 완료기한, 우선순위,
+          개선 전후 비교 및 KPI 시각화
+        </p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- 05 4일차 기획서 링크 -->
+<section id="ppt">
+  <h2>05. 4일차 기획서 PPT</h2>
+
+  <div class="card linkcard">
+
+    <div class="linkicon">📁</div>
+
+    <h3>4일차 프로젝트 기획서</h3>
+
+    <p>
+      생산공정 개선 업무의 효율화 및
+      실행 기준 명확화
+    </p>
+
+    <p class="subtitle">
+      문제 정의, AS-IS 업무 분석,
+      TO-BE 개선안, 최종 해결안 및
+      기대 효과를 정리한 기획서입니다.
+    </p>
+
+    <a
+      class="btn"
+      href="https://drive.google.com/drive/folders/1x9CS0F1EZMCWmzK0w1kqQGKF0CpBpHVD"
+      target="_blank"
+      rel="noopener noreferrer"
+      style="margin-top:18px;"
+    >
+      📂 4일차 기획서 확인하기 ↗
+    </a>
+
+    <p class="note" style="margin-top:20px;">
+      버튼을 클릭하면 Google Drive 폴더가
+      새 탭에서 열립니다.
+    </p>
+
+  </div>
+</section>
+
+<!-- 06 완성 앱 연결 -->
+<section id="app">
+  <h2>06. 오늘 완성한 앱 / 웹</h2>
+
+  <div class="card appcard">
+
+    <div class="appicon">▦</div>
+
+    <h2>공정개선 스마트 계획표</h2>
+
+    <p>
+      통합 대시보드 · 과제 등록 · 칸반 보드<br>
+      과제 목록 · KPI 분석
+    </p>
+
+    <p class="subtitle">
+      아래 버튼을 누르면 오늘 완성한
+      공정개선 스마트 계획표 웹앱으로 이동합니다.
+    </p>
+
+    <a
+      id="appButton"
+      class="btn"
+      href="#"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-disabled="true"
+      style="pointer-events:none;opacity:.6;"
+    >
+      앱 주소 연결 중...
+    </a>
+
+    <p id="appStatus" class="note"></p>
+
+  </div>
+</section>
+
+</main>
+
+<footer>
+  5조 씩씩한 붕붕이 · HINT 2기 디지털 스킬 프로젝트
+</footer>
+
+<script src="/bridge.js"></script>
+<script>
+
+// 공정개선 웹앱 연결
+function setupAppButton() {
+
+  const btn = document.getElementById('appButton');
+  const status = document.getElementById('appStatus');
+
+  google.script.run
+    .withSuccessHandler(function(url) {
+
+      if (!url) {
+        btn.textContent = '앱 주소 확인 실패';
+        status.textContent =
+          '웹앱을 먼저 배포한 후 다시 접속하세요.';
+        return;
+      }
+
+      const separator = url.includes('?') ? '&' : '?';
+
+      const appUrl = url + separator + 'page=app';
+
+      btn.href = appUrl;
+
+      btn.textContent =
+        '공정개선 스마트 계획표 실행하기 ↗';
+
+      btn.style.pointerEvents = 'auto';
+      btn.style.opacity = '1';
+      btn.setAttribute('aria-disabled', 'false');
+
+      status.textContent =
+        '버튼을 클릭하면 새 탭에서 공정개선 앱이 열립니다.';
+
+    })
+    .withFailureHandler(function(error) {
+
+      btn.textContent = '앱 연결 오류';
+
+      status.textContent =
+        '연결 오류: ' + error.message;
+
+    })
+    .getWebAppUrl();
+}
+
+// 페이지 로딩 시 앱 주소 연결
+setupAppButton();
+
+</script>
+
+</body>
+</html>

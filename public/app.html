@@ -1,0 +1,778 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>공정개선 스마트 계획표</title>
+<style>
+:root {
+  --navy:#102744; --blue:#2563eb;
+  --bg:#f3f6fc; --line:#e2e8f0;
+  --muted:#64748b; --green:#16a34a;
+  --red:#dc2626;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0; background:var(--bg);
+  color:#172b49;
+  font-family:Arial,"Malgun Gothic",sans-serif;
+}
+.layout { display:flex; min-height:100vh; }
+aside {
+  width:240px; flex-shrink:0;
+  background:var(--navy); color:white;
+  padding:25px 14px;
+}
+.logo {
+  padding:12px; font-size:19px;
+  font-weight:800; margin-bottom:24px;
+}
+.logo small {
+  display:block; font-size:11px;
+  color:#a9c3e4; margin-top:8px;
+}
+.nav {
+  width:100%; border:0; border-radius:10px;
+  background:transparent; color:#b9cce5;
+  padding:15px; text-align:left;
+  cursor:pointer; margin:3px 0;
+}
+.nav.active,.nav:hover {
+  background:#2a4b76; color:white;
+}
+main { flex:1; min-width:0; padding:28px; }
+.top {
+  display:flex; justify-content:space-between;
+  align-items:center; gap:12px; margin-bottom:24px;
+}
+h1 { margin:6px 0; font-size:27px; }
+h2 { margin:0 0 18px; font-size:19px; }
+h3 { font-size:15px; }
+.muted {
+  color:var(--muted); font-size:12px;
+  line-height:1.7;
+}
+.card {
+  background:white; border:1px solid var(--line);
+  border-radius:15px; padding:22px;
+  margin-bottom:16px;
+  box-shadow:0 4px 16px #132f5008;
+}
+.grid4 {
+  display:grid; grid-template-columns:repeat(4,1fr);
+  gap:14px;
+}
+.grid2 {
+  display:grid; grid-template-columns:repeat(2,1fr);
+  gap:15px;
+}
+.stat strong {
+  display:block; font-size:31px;
+  margin:13px 0;
+}
+.section { display:none; }
+.section.active { display:block; }
+.btn {
+  border:0; border-radius:9px;
+  padding:12px 17px; background:var(--blue);
+  color:white; font-weight:bold; cursor:pointer;
+}
+.btn.alt { background:#e6eefb; color:#1e477a; }
+.btn:disabled { opacity:.5; }
+input,select,textarea {
+  width:100%; padding:12px;
+  border:1px solid #cbd5e1; border-radius:9px;
+  background:white; color:#172b49;
+  font:inherit;
+}
+textarea { min-height:85px; resize:vertical; }
+label {
+  display:block; margin-bottom:7px;
+  font-size:13px; font-weight:bold;
+}
+.field { margin-bottom:15px; }
+.wide { grid-column:1/-1; }
+.pill {
+  display:inline-block; background:#e2e8f0;
+  border-radius:20px; padding:5px 10px;
+  font-size:11px; font-weight:bold;
+}
+.good { background:#dcfce7; color:#166534; }
+.bad { background:#fee2e2; color:#991b1b; }
+.blue { background:#dbeafe; color:#1d4ed8; }
+.task {
+  border:1px solid var(--line);
+  border-radius:11px; padding:16px;
+  margin:12px 0; background:white;
+}
+.task p { font-size:13px; line-height:1.6; }
+.taskhead {
+  display:flex; justify-content:space-between;
+  gap:10px; flex-wrap:wrap;
+}
+.kanban {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:13px;
+}
+.column {
+  background:#e9eff8; border-radius:12px;
+  padding:13px; min-height:240px;
+}
+.message {
+  margin-top:12px; padding:12px;
+  border-radius:8px; display:none;
+  white-space:pre-line; font-size:13px;
+}
+.message.ok { display:block; background:#dcfce7; color:#166534; }
+.message.err { display:block; background:#fee2e2; color:#991b1b; }
+.barrow {
+  display:flex; align-items:center;
+  gap:10px; margin:14px 0; font-size:12px;
+}
+.barlabel { width:95px; overflow:hidden; }
+.track {
+  flex:1; background:#e2e8f0;
+  height:15px; border-radius:8px; overflow:hidden;
+}
+.fill { height:100%; background:#3b82f6; }
+.empty {
+  text-align:center; padding:35px;
+  color:var(--muted); font-size:13px;
+}
+.filters {
+  display:grid;
+  grid-template-columns:2fr 1fr 1fr;
+  gap:10px; margin-bottom:15px;
+}
+@media(max-width:900px) {
+  .grid4 { grid-template-columns:repeat(2,1fr); }
+  .kanban { grid-template-columns:1fr; }
+}
+@media(max-width:650px) {
+  .layout { display:block; }
+  aside { width:100%; padding:12px; }
+  .logo { margin-bottom:5px; }
+  .navwrap { display:flex; overflow-x:auto; }
+  .nav { width:auto; white-space:nowrap; }
+  main { padding:14px; }
+  .grid2,.filters { grid-template-columns:1fr; }
+  h1 { font-size:22px; }
+}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside>
+  <div class="logo">
+    ◈ PROCESS CONTROL
+    <small>공정개선 스마트 계획표</small>
+  </div>
+  <div class="navwrap">
+    <button class="nav active" onclick="go('home',this)">▦ 통합 대시보드</button>
+    <button class="nav" onclick="go('register',this)">＋ 과제 등록</button>
+    <button class="nav" onclick="go('board',this)">▤ 칸반 보드</button>
+    <button class="nav" onclick="go('tasks',this)">☷ 과제 목록</button>
+    <button class="nav" onclick="go('kpi',this)">◉ KPI 분석</button>
+  </div>
+</aside>
+
+<main>
+  <div class="top">
+    <div>
+      <div class="muted">가상 데이터로 만든 교육용 프로토타입</div>
+      <h1 id="title">통합 대시보드</h1>
+      <div id="updated" class="muted">불러오는 중...</div>
+    </div>
+    <button class="btn alt" onclick="refresh()">새로고침</button>
+  </div>
+
+  <section id="home" class="section active">
+    <div id="stats" class="grid4"></div>
+
+    <div class="grid2">
+      <div class="card">
+        <h2>과제 진행 상태</h2>
+        <div id="donut"></div>
+      </div>
+      <div class="card">
+        <h2>월별 과제 등록 추이</h2>
+        <div id="monthly"></div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h2>우선순위 분포</h2>
+        <div id="priorities"></div>
+      </div>
+      <div class="card">
+        <h2>지연 과제</h2>
+        <div id="overdue"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>최근 등록 과제</h2>
+      <div id="recent"></div>
+    </div>
+  </section>
+
+  <section id="register" class="section">
+    <div class="card">
+      <h2>새로운 개선과제 등록</h2>
+      <p class="muted">
+        * 필수 항목을 입력하지 않으면 누락 경고가 기록됩니다.
+      </p>
+
+      <form id="taskForm" novalidate>
+        <div class="grid2">
+          <div class="field">
+            <label>대상공정 *</label>
+            <input id="process" placeholder="예: 자동차 조립공정">
+          </div>
+          <div class="field">
+            <label>담당자 *</label>
+            <input id="manager" placeholder="담당자 이름">
+          </div>
+          <div class="field wide">
+            <label>문제 *</label>
+            <textarea id="problem" placeholder="현재 문제점"></textarea>
+          </div>
+          <div class="field wide">
+            <label>개선내용 *</label>
+            <textarea id="improvement" placeholder="개선 계획"></textarea>
+          </div>
+          <div class="field">
+            <label>완료기한 *</label>
+            <input id="deadline" type="date">
+          </div>
+          <div class="field">
+            <label>우선순위</label>
+            <select id="priority">
+              <option>보통</option>
+              <option>높음</option>
+              <option>낮음</option>
+            </select>
+          </div>
+          <div class="field wide">
+            <label>완료기준 *</label>
+            <textarea id="criteria" placeholder="완료 판정 기준"></textarea>
+          </div>
+        </div>
+        <button class="btn" id="saveBtn">개선과제 저장</button>
+      </form>
+
+      <div id="formMessage" class="message"></div>
+    </div>
+  </section>
+
+  <section id="board" class="section">
+    <div class="card">
+      <h2>공정개선 칸반 보드</h2>
+      <p class="muted">각 카드의 진행 상태를 변경할 수 있습니다.</p>
+      <div id="kanban" class="kanban"></div>
+    </div>
+  </section>
+
+  <section id="tasks" class="section">
+    <div class="card">
+      <h2>개선과제 목록</h2>
+      <div class="filters">
+        <input id="search" oninput="renderTasks()"
+          placeholder="공정·담당자 검색">
+        <select id="statusFilter" onchange="renderTasks()">
+          <option value="">전체 상태</option>
+          <option>계획</option>
+          <option>진행 중</option>
+          <option>완료</option>
+          <option>지연</option>
+        </select>
+        <select id="priorityFilter" onchange="renderTasks()">
+          <option value="">전체 우선순위</option>
+          <option>높음</option>
+          <option>보통</option>
+          <option>낮음</option>
+        </select>
+      </div>
+      <div id="taskList"></div>
+    </div>
+  </section>
+
+  <section id="kpi" class="section">
+    <div id="kpiCards" class="grid2"></div>
+
+    <div class="grid2">
+      <div class="card">
+        <h2>개선 전·후 작업 대기 건수</h2>
+        <div id="comparison"></div>
+      </div>
+      <div class="card">
+        <h2>누락 항목 분석</h2>
+        <div id="missingChart"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>담당자별 업무량</h2>
+      <div id="managerChart"></div>
+    </div>
+
+    <div class="card">
+      <h2>KPI 측정 기준</h2>
+      <p class="muted">
+        결과 KPI: 개선 후 정보 누락 대기 건수 합계 (목표 0건)
+      </p>
+      <p class="muted">
+        과정 KPI: 누락 경고 후 보완 저장 건수 /
+        전체 누락 경고 건수 × 100 (목표 90% 이상)
+      </p>
+      <p class="muted">
+        실제 현장 측정이 아닌 교육용 가상 데이터입니다.
+      </p>
+    </div>
+  </section>
+</main>
+</div>
+
+<script src="/bridge.js"></script>
+<script>
+let DATA = null;
+let warningId = '';
+let busy = false;
+
+const $ = id => document.getElementById(id);
+const val = id => $(id).value.trim();
+
+function esc(s) {
+  return String(s ?? '')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+function showMsg(id, text, kind) {
+  $(id).textContent = text;
+  $(id).className = 'message ' + kind;
+}
+
+function go(id, btn) {
+  document.querySelectorAll('.section')
+    .forEach(x => x.classList.remove('active'));
+  $(id).classList.add('active');
+
+  document.querySelectorAll('.nav')
+    .forEach(x => x.classList.remove('active'));
+  btn.classList.add('active');
+
+  const titles = {
+    home:'통합 대시보드',
+    register:'개선과제 등록',
+    board:'칸반 보드',
+    tasks:'개선과제 목록',
+    kpi:'KPI 분석 센터'
+  };
+  $('title').textContent = titles[id];
+  if (id !== 'register') refresh();
+}
+
+function refresh() {
+  google.script.run
+    .withSuccessHandler(d => {
+      DATA = d;
+      $('updated').textContent = '마지막 조회: ' + d.generatedAt;
+      renderHome();
+      renderBoard();
+      renderTasks();
+      renderKPI();
+    })
+    .withFailureHandler(e => {
+      $('updated').textContent = '조회 오류: ' + e.message;
+    })
+    .getDashboard();
+}
+
+function pill(s) {
+  const color = s === '완료' ? 'good' :
+    s === '지연' ? 'bad' :
+    s === '진행 중' ? 'blue' : '';
+  return '<span class="pill ' + color + '">' + esc(s) + '</span>';
+}
+
+function bars(items, color = '#3b82f6') {
+  if (!items.length) return '<div class="empty">데이터 없음</div>';
+  const max = Math.max(1, ...items.map(x => x.value));
+
+  return items.map(x => `
+    <div class="barrow">
+      <span class="barlabel">${esc(x.name)}</span>
+      <div class="track">
+        <div class="fill" style="
+          width:${Math.max(0,x.value/max*100)}%;
+          background:${color}"></div>
+      </div>
+      <b>${x.value}</b>
+    </div>
+  `).join('');
+}
+
+function donut(values) {
+  const total = values.reduce((a,b) => a+b, 0);
+  if (!total) return '<div class="empty">등록된 과제 없음</div>';
+
+  const colors = ['#94a3b8','#3b82f6','#16a34a'];
+  const circumference = 2*Math.PI*65;
+  let offset = 0;
+
+  const circles = values.map((v,i) => {
+    const length = v/total*circumference;
+    const result = `<circle cx="100" cy="100" r="65"
+      fill="none" stroke="${colors[i]}" stroke-width="25"
+      stroke-dasharray="${length} ${circumference-length}"
+      stroke-dashoffset="${-offset}"
+      transform="rotate(-90 100 100)"/>`;
+    offset += length;
+    return result;
+  }).join('');
+
+  return `<svg viewBox="0 0 200 200"
+    style="max-width:220px;display:block;margin:auto">
+    ${circles}
+    <text x="100" y="100" text-anchor="middle"
+      font-size="29" font-weight="bold">${total}</text>
+    <text x="100" y="119" text-anchor="middle"
+      font-size="11">전체 과제</text>
+  </svg>
+  <p class="muted" style="text-align:center">
+    계획 ${values[0]} · 진행 ${values[1]} · 완료 ${values[2]}
+  </p>`;
+}
+
+function renderHome() {
+  const s = DATA.summary;
+
+  $('stats').innerHTML = [
+    ['전체 개선과제',s.total,'▦'],
+    ['진행 중',s.active,'◷'],
+    ['완료',s.completed,'✓'],
+    ['지연',s.overdue,'!']
+  ].map(([name,num,icon]) => `
+    <div class="card stat">
+      <div style="font-size:24px">${icon}</div>
+      <p class="muted">${name}</p>
+      <strong>${num}건</strong>
+    </div>
+  `).join('');
+
+  $('donut').innerHTML = donut([
+    s.planned,s.active,s.completed
+  ]);
+
+  $('monthly').innerHTML = bars(
+    DATA.charts.monthly.slice(-8)
+  );
+
+  $('priorities').innerHTML = bars(
+    ['높음','보통','낮음'].map(name => ({
+      name,
+      value:DATA.tasks.filter(t=>t.priority===name).length
+    }))
+  );
+
+  const overdue = DATA.tasks.filter(t=>t.overdue);
+  $('overdue').innerHTML = overdue.length
+    ? overdue.slice(0,5).map(t=>`
+      <div class="task">
+        <b>${esc(t.process)}</b>
+        <p class="muted">${esc(t.manager)} · ${esc(t.deadline)}</p>
+        ${pill('지연')}
+      </div>`).join('')
+    : '<div class="empty">지연 과제 없음</div>';
+
+  $('recent').innerHTML = DATA.tasks.slice(0,5)
+    .map(t=>`
+      <div class="task">
+        <div class="taskhead">
+          <b>${esc(t.id)} · ${esc(t.process)}</b>
+          ${pill(t.displayStatus)}
+        </div>
+        <p class="muted">${esc(t.manager)} · ${esc(t.deadline)}</p>
+      </div>`).join('')
+    || '<div class="empty">등록된 과제 없음</div>';
+}
+
+function renderBoard() {
+  const states = ['계획','진행 중','완료'];
+
+  $('kanban').innerHTML = states.map(status => {
+    const list = DATA.tasks.filter(t=>t.status===status);
+
+    return `<div class="column">
+      <h3>${status} (${list.length})</h3>
+      ${list.map(t=>`
+        <div class="task">
+          <b>${esc(t.process)}</b>
+          <p class="muted">${esc(t.manager)} · ${esc(t.deadline)}</p>
+          ${t.overdue ? pill('지연') : pill(t.priority)}
+          <div style="margin-top:12px">
+            <select onchange="quickStatus('${t.id}',this.value)">
+              ${states.map(x=>`
+                <option ${x===status?'selected':''}>${x}</option>
+              `).join('')}
+            </select>
+          </div>
+        </div>
+      `).join('') || '<p class="muted">과제 없음</p>'}
+    </div>`;
+  }).join('');
+}
+
+function filtered() {
+  const q = val('search').toLowerCase();
+  const status = val('statusFilter');
+  const priority = val('priorityFilter');
+
+  return DATA.tasks.filter(t =>
+    [t.id,t.process,t.problem,t.manager]
+      .join(' ').toLowerCase().includes(q) &&
+    (!status || t.displayStatus===status) &&
+    (!priority || t.priority===priority)
+  );
+}
+
+function renderTasks() {
+  if (!DATA) return;
+
+  $('taskList').innerHTML = filtered().map(t=>`
+    <div class="task">
+      <div class="taskhead">
+        <b>${esc(t.id)} · ${esc(t.process)}</b>
+        ${pill(t.displayStatus)}
+      </div>
+      <p><b>담당자:</b> ${esc(t.manager)} /
+        <b>기한:</b> ${esc(t.deadline)}</p>
+      <p><b>문제:</b> ${esc(t.problem)}</p>
+      <p><b>개선내용:</b> ${esc(t.improvement)}</p>
+      <p><b>완료기준:</b> ${esc(t.criteria)}</p>
+
+      <h3>진행 및 개선 성과 입력</h3>
+      <div class="grid2">
+        <div class="field">
+          <label>진행 상태</label>
+          <select id="s-${t.id}">
+            ${['계획','진행 중','완료'].map(x=>
+              `<option ${x===t.status?'selected':''}>${x}</option>`
+            ).join('')}
+          </select>
+        </div>
+        <div class="field">
+          <label>우선순위</label>
+          <select id="p-${t.id}">
+            ${['높음','보통','낮음'].map(x=>
+              `<option ${x===t.priority?'selected':''}>${x}</option>`
+            ).join('')}
+          </select>
+        </div>
+        <div class="field">
+          <label>개선 전 대기 건수</label>
+          <input id="b-${t.id}" type="number" min="0"
+            step="1" value="${esc(t.before)}">
+        </div>
+        <div class="field">
+          <label>개선 후 대기 건수</label>
+          <input id="a-${t.id}" type="number" min="0"
+            step="1" value="${esc(t.after)}">
+        </div>
+        <div class="field">
+          <label>측정 시작일</label>
+          <input id="start-${t.id}" type="date"
+            value="${esc(t.start)}">
+        </div>
+        <div class="field">
+          <label>측정 종료일</label>
+          <input id="end-${t.id}" type="date"
+            value="${esc(t.end)}">
+        </div>
+      </div>
+      <button class="btn" onclick="saveUpdate('${t.id}')">
+        변경사항 저장
+      </button>
+      <div id="msg-${t.id}" class="message"></div>
+    </div>
+  `).join('') || '<div class="empty">검색 결과 없음</div>';
+}
+
+function updateData(id) {
+  return {
+    id,
+    status:val('s-'+id),
+    priority:val('p-'+id),
+    before:val('b-'+id),
+    after:val('a-'+id),
+    start:val('start-'+id),
+    end:val('end-'+id)
+  };
+}
+
+function saveUpdate(id) {
+  const data = updateData(id);
+
+  google.script.run
+    .withSuccessHandler(r=>{
+      if (r.success) refresh();
+      else showMsg('msg-'+id,r.message,'err');
+    })
+    .withFailureHandler(e=>
+      showMsg('msg-'+id,e.message,'err')
+    )
+    .updateTask(data);
+}
+
+function quickStatus(id,status) {
+  const t = DATA.tasks.find(x=>x.id===id);
+  if (!t) return;
+
+  google.script.run
+    .withSuccessHandler(r=>{
+      if (r.success) refresh();
+      else alert(r.message);
+    })
+    .withFailureHandler(e=>alert(e.message))
+    .updateTask({
+      id,status,priority:t.priority,
+      before:t.before,after:t.after,
+      start:t.start,end:t.end
+    });
+}
+
+function renderKPI() {
+  const r = DATA.kpi.result;
+  const p = DATA.kpi.process;
+
+  $('kpiCards').innerHTML = `
+    <div class="card stat">
+      <p class="muted">결과 KPI · 개선 후 대기 건수</p>
+      <strong>${r.measured?r.after+'건':'미측정'}</strong>
+      <p class="muted">목표: 0건 · 측정 과제 ${r.measured}건</p>
+      ${pill(!r.measured?'미측정':r.after===0?'완료':'목표 미달')}
+    </div>
+    <div class="card stat">
+      <p class="muted">과정 KPI · 누락 보완 저장 비율</p>
+      <strong>${p.rate===null?'미측정':p.rate.toFixed(1)+'%'}</strong>
+      <p class="muted">목표: 90% 이상</p>
+      <p class="muted">경고 ${p.total}건 · 보완 ${p.corrected}건</p>
+      ${pill(p.rate===null?'미측정':p.rate>=90?'완료':'목표 미달')}
+    </div>
+  `;
+
+  $('comparison').innerHTML = r.measured
+    ? bars([
+        {name:'개선 전',value:r.before},
+        {name:'개선 후',value:r.after}
+      ]) + `<p class="muted">감소율:
+        ${r.reduction===null?'산정 불가':
+          r.reduction.toFixed(1)+'%'}</p>`
+    : '<div class="empty">측정 데이터 없음</div>';
+
+  $('missingChart').innerHTML = bars(
+    DATA.charts.missing.slice(0,8),'#f59e0b'
+  );
+
+  $('managerChart').innerHTML = bars(
+    DATA.charts.managers.map(x=>({
+      name:x.name,value:x.total
+    }))
+  );
+}
+
+function setBusy(b) {
+  busy = b;
+  $('saveBtn').disabled = b;
+  $('saveBtn').textContent = b ? '저장 중...' : '개선과제 저장';
+}
+
+$('taskForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  if (busy) return;
+
+  const d = {
+    process:val('process'),
+    problem:val('problem'),
+    improvement:val('improvement'),
+    manager:val('manager'),
+    deadline:val('deadline'),
+    criteria:val('criteria'),
+    priority:val('priority'),
+    warningId
+  };
+
+  const fields = [
+    ['process','대상공정'],
+    ['problem','문제'],
+    ['improvement','개선내용'],
+    ['manager','담당자'],
+    ['deadline','완료기한'],
+    ['criteria','완료기준']
+  ];
+
+  const missing = fields
+    .filter(([k])=>!d[k])
+    .map(([,name])=>name);
+
+  if (missing.length) {
+    if (warningId) {
+      showMsg('formMessage',
+        '누락 항목: '+missing.join(', ')+'\n보완 후 저장하세요.',
+        'err');
+      return;
+    }
+
+    setBusy(true);
+    google.script.run
+      .withSuccessHandler(r=>{
+        setBusy(false);
+        if (r.success) warningId = r.id;
+        showMsg('formMessage',
+          r.success
+            ? '누락 항목: '+r.missing.join(', ')
+            : r.message,
+          'err');
+      })
+      .withFailureHandler(e=>{
+        setBusy(false);
+        showMsg('formMessage',e.message,'err');
+      })
+      .recordWarning(d);
+
+    return;
+  }
+
+  setBusy(true);
+  google.script.run
+    .withSuccessHandler(r=>{
+      setBusy(false);
+      if (r.success) {
+        showMsg('formMessage',
+          '등록 완료! 과제ID: '+r.id,'ok');
+        $('taskForm').reset();
+        warningId = '';
+        refresh();
+      } else {
+        showMsg('formMessage',r.message,'err');
+      }
+    })
+    .withFailureHandler(e=>{
+      setBusy(false);
+      showMsg('formMessage',e.message,'err');
+    })
+    .saveTask(d);
+});
+
+refresh();
+</script>
+</body>
+</html>
