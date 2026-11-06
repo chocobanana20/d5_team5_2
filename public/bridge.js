@@ -1,48 +1,90 @@
-// 기존 화면의 google.script.run 호출을 동일 출처의 Vercel API로 연결합니다.
+// 기존 화면을 Vercel API와 연결합니다.
 (function () {
-  let credential = sessionStorage.getItem('team-password') || '';
-  function runner(success, failure) {
+  function createRunner(successHandler, failureHandler) {
     return new Proxy({}, {
       get: function (_, name) {
-        if (name === 'withSuccessHandler') return fn => runner(fn, failure);
-        if (name === 'withFailureHandler') return fn => runner(success, fn);
+        if (name === 'withSuccessHandler') {
+          return function (handler) {
+            return createRunner(handler, failureHandler);
+          };
+        }
+
+        if (name === 'withFailureHandler') {
+          return function (handler) {
+            return createRunner(successHandler, handler);
+          };
+        }
+
         return function (...args) {
           (async function () {
             try {
+              // 팀 소개 화면의 앱 실행 버튼 연결
               if (name === 'getWebAppUrl') {
-                // 팀 페이지의 기존 ?page=app 링크를 로컬 앱 주소로 연결합니다.
-                if (success) success(location.origin + '/app.html');
+                if (successHandler) {
+                  successHandler(
+                    window.location.origin + '/app.html'
+                  );
+                }
                 return;
               }
-              if (!credential) {
-                credential = prompt('팀 앱 비밀번호를 입력해주세요.') || '';
-                if (!credential) throw new Error('팀 앱 비밀번호가 필요합니다. 새로고침을 눌러 다시 입력하세요.');
-              }
+
               const response = await fetch('/api/rpc', {
                 method: 'POST',
-                headers: {'Content-Type':'application/json','X-Team-Password':credential},
-                body: JSON.stringify({action:name,args}),
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                  action: name,
+                  args: args
+                }),
                 signal: AbortSignal.timeout(55000)
               });
+
               let result;
-              try { result = await response.json(); }
-              catch (_) { throw new Error('서버 응답을 읽지 못했습니다. Vercel 배포 상태를 확인하세요.'); }
-              if (response.status === 401) {
-                credential = '';
-                sessionStorage.removeItem('team-password');
+
+              try {
+                result = await response.json();
+              } catch (_) {
+                throw new Error(
+                  '서버 응답을 읽지 못했습니다. ' +
+                  'Vercel 배포 상태를 확인해주세요.'
+                );
               }
-              if (!response.ok || !result.ok) throw new Error(result.error || '서버 요청 실패');
-              sessionStorage.setItem('team-password',credential);
-              if (success) success(result.data);
+
+              if (!response.ok || !result.ok) {
+                throw new Error(
+                  result.error || '서버 요청에 실패했습니다.'
+                );
+              }
+
+              if (successHandler) {
+                successHandler(result.data);
+              }
             } catch (error) {
-              if (error.name === 'TimeoutError') error = new Error('응답 시간이 초과됐습니다. 저장 요청이었다면 과제 목록을 먼저 확인하세요.');
-              if (failure) failure(error); else console.error(error);
+              if (
+                error.name === 'TimeoutError' ||
+                error.name === 'AbortError'
+              ) {
+                error = new Error(
+                  '응답 시간이 초과됐습니다. ' +
+                  '저장 요청이었다면 과제 목록을 먼저 확인해주세요.'
+                );
+              }
+
+              if (failureHandler) {
+                failureHandler(error);
+              } else {
+                console.error(error);
+              }
             }
           })();
         };
       }
     });
   }
+
   window.google = window.google || {};
-  window.google.script = {run:runner()};
+  window.google.script = {
+    run: createRunner()
+  };
 })();
